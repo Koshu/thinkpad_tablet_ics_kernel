@@ -1,0 +1,12 @@
+kernel/drivers/hid/hid.ko
+kernel/drivers/hid/hid-ntrig.ko
+kernel/drivers/hid/ntrig-common.ko
+kernel/drivers/hid/ntrig-dispatcher.ko
+kernel/drivers/hid/ntrig-quirk-driver.ko
+kernel/drivers/hid/ntrig-dispatcher-sysfs.ko
+kernel/drivers/hid/ntrig-ncp-driver.ko
+kernel/drivers/hid/ntrig-dispatcher-sys-depend-android.ko
+kernel/drivers/hid/ntrig-direct-event-driver.ko
+kernel/drivers/hid/ntrig_spi.ko
+kernel/drivers/hid/ntrig_low_msg.ko
+kernel/drivers/hid/usbhid/usbhid.ko

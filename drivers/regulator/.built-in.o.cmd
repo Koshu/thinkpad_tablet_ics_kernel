@@ -1,0 +1,1 @@
+cmd_drivers/regulator/built-in.o :=  /home/koshu/androidtest/cm9/prebuilt/linux-x86/toolchain/arm-eabi-4.4.3/bin/arm-eabi-ld -EL    -r -o drivers/regulator/built-in.o drivers/regulator/core.o drivers/regulator/fixed.o drivers/regulator/virtual.o drivers/regulator/dummy.o drivers/regulator/tps6586x-regulator.o 
