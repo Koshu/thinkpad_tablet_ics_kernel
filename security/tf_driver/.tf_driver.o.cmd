@@ -1,1 +1,0 @@
-cmd_security/tf_driver/tf_driver.o := /home/koshu/androidtest/cm9/prebuilt/linux-x86/toolchain/arm-eabi-4.4.3/bin/arm-eabi-ld -EL    -r -o security/tf_driver/tf_driver.o security/tf_driver/scxlnx_util.o security/tf_driver/scxlnx_conn.o security/tf_driver/scxlnx_device.o security/tf_driver/scxlnx_comm.o security/tf_driver/scxlnx_comm_tz.o 
