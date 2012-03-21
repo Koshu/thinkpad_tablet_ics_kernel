@@ -1502,6 +1502,10 @@ static int ntrig_send_multi_touch(struct input_dev *input, lp_mr_message_types_t
 	int fingerCount = 0;
 	int dx, dy, major, minor, orientation;
 	char a;
+	static int old_x = 0;
+	static int old_y = 0;
+	int sendsomething;
+	int allremoved;
 	ntrig_dbg("Inside %s\n", __FUNCTION__); 
 	if(!input){
 		ntrig_dbg("%s No Input Queue\n", __FUNCTION__); 
@@ -1527,6 +1531,9 @@ static int ntrig_send_multi_touch(struct input_dev *input, lp_mr_message_types_t
 	}
 
 	first = 1;
+	allremoved = 1;
+	sendsomething = 0;
+
 	for(i=0; i < fingers_num;i++){
 	    
 		index = get_finger_index (fingers[i].track_id);
@@ -1537,7 +1544,7 @@ static int ntrig_send_multi_touch(struct input_dev *input, lp_mr_message_types_t
 				fingers[i].removed,  lastFingerCount, fingerCount); 
 
 		if (fingers[i].removed) {
-			input_report_abs(input, BTN_TOUCH, 0);
+			input_report_key(input, BTN_TOUCH, 0);
 			/* ntrig_dbg("%s: sent  ABS_MT_TOUCH_MAJOR,0x0\n", __FUNCTION__); */ 
 		}
 		else
@@ -1545,7 +1552,16 @@ static int ntrig_send_multi_touch(struct input_dev *input, lp_mr_message_types_t
 			/* report a fixed TOUCH_MAJOR to simulate fixed pressure for fingers */
 			//input_report_abs(input, ABS_MT_TOUCH_MAJOR, ABS_MT_TOUCH_MAJOR_VAL);
 			/* ntrig_dbg("%s: sent  ABS_MT_TOUCH_MAJOR,0x32\n", __FUNCTION__); */ 
+			allremoved = 0;
 
+			if (fingers[i].x_coord == old_x && fingers[i].y_coord == old_y) {
+				continue;
+			}
+
+			old_x = fingers[i].x_coord;
+			old_y = fingers[i].y_coord;
+			
+			sendsomething = 1;
 			/* WIDTH_MAJOR ,WIDTH_MINOR, ORIENTATION implementation:
 			   WIDTH_MAJOR = max(dx, dy) - major axis of contact ellipse
 			   WIDTH_MINOR = min(dx, dy) - minor axis of contact ellipse
@@ -1562,24 +1578,27 @@ static int ntrig_send_multi_touch(struct input_dev *input, lp_mr_message_types_t
 				minor = dy;
 				orientation = 1;
 			}
-
+			input_report_key(input, BTN_TOUCH, 1);
 			input_report_abs(input, ABS_MT_TOOL_TYPE, MT_TOOL_FINGER);
-			//input_report_abs(input, ABS_MT_WIDTH_MAJOR, major);
-			//input_report_abs(input, ABS_MT_WIDTH_MINOR, minor);
-			//input_report_abs(input, ABS_MT_ORIENTATION, orientation);
+			input_report_abs(input, ABS_MT_TOUCH_MAJOR, major);
+			input_report_abs(input, ABS_MT_TOUCH_MINOR, minor);
+			input_report_abs(input, ABS_MT_ORIENTATION, orientation);
 
 			input_report_abs(input, ABS_MT_POSITION_X, fingers[i].x_coord);
 			input_report_abs(input, ABS_MT_POSITION_Y, fingers[i].y_coord);
 			
 			input_report_abs(input, ABS_MT_TRACKING_ID, index);
 			/* TRACKING_ID: use index */
-			
-		}
-		
-		input_mt_sync(input);
+			input_mt_sync(input);
+		}	
 	}
 
-	input_sync(input);
+	if (allremoved) {
+		input_mt_sync(input);
+		input_sync(input);
+	} else if (sendsomething) {
+		input_sync(input);
+	}
 
 	lastFingerCount = fingerCount;
 

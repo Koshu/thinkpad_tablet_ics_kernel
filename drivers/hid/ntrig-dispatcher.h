@@ -31,7 +31,7 @@
  *  from some tablet. Note the n-trig sensor does not support
  *  pressure for fingers. It does report contact size (dx,dy)
  *  which we use for WIDTH_MAJOR, WIDTH_MINOR and ORIENTATION */
-#define ABS_MT_TOUCH_MAJOR_MAX		100
+#define ABS_MT_TOUCH_MAJOR_MAX		7200
 #define ABS_MT_TOUCH_MAJOR_VAL		16
 /** the value we report for ABS_MT_WIDTH_MAJOR and
  *  ABS_MT_WIDTH_MINOR - we use the smallest of the sensor
