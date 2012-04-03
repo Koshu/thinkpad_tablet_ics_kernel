@@ -1461,32 +1461,39 @@ static int ntrig_send_pen(struct input_dev *input, lp_mr_message_types_t pen)
 	btn_code = pen->msg.pen_event.btn_code;
 	//ntrig_dbg("%s: btn_code = %d\n", __FUNCTION__, btn_code); 
 	if(btn_code & EVENT_PEN_BIT_IN_RANGE) {
-		/* handle the second button + tip first as it is special */
-		if(btn_code & EVENT_PEN_BIT_ERASER) {
-			/* second button + tip */
-			input_report_key(input, BTN_TOOL_PEN, 0x00);
-			input_report_key(input, BTN_STYLUS2, 0x01);
-			input_report_key(input, BTN_TOUCH, 0x01);
+		/* normal handling of tip, stylus 2 */
+		if(btn_code & EVENT_PEN_BIT_TIP) {
+			input_report_key(input, BTN_TOOL_PEN, 0x01); /* stop hover */
+			input_report_key(input, BTN_TOUCH, 0x01); /* tip touch */
 		} else {
-			/* normal handling of tip, stylus 2 */
-			if(btn_code & EVENT_PEN_BIT_TIP) {
-				input_report_key(input, BTN_TOOL_PEN, 0x01); /* stop hover */
-				input_report_key(input, BTN_TOUCH, 0x01); /* tip touch */
-			} else {
-				input_report_key(input, BTN_TOOL_PEN, 0x01); /* start hover */
-				input_report_key(input, BTN_TOUCH, 0x00); /* no tip touch */
-			}
-			input_report_key(input, BTN_STYLUS2, (btn_code & EVENT_PEN_BIT_INVERT) ? 1 : 0);
+			input_report_key(input, BTN_TOOL_PEN, 0x01); /* start hover */
+			input_report_key(input, BTN_TOUCH, 0x00); /* no tip touch */
 		}
-		input_report_key(input, BTN_STYLUS, (btn_code & EVENT_PEN_BIT_RIGHT_CLICK) ? 1 : 0);
+
+		input_report_abs(input, ABS_X,				pen->msg.pen_event.x_coord);
+		input_report_abs(input, ABS_Y,				pen->msg.pen_event.y_coord);
+		input_report_abs(input, ABS_PRESSURE, 			pen->msg.pen_event.pressure);
+		input_sync(input);
+
+
+		if(btn_code & EVENT_PEN_BIT_RIGHT_CLICK) {
+			input_report_key(input, BTN_STYLUS, 0x01);
+		} else {
+			input_report_key(input, BTN_STYLUS, 0x00);
+		}
+
+		input_report_abs(input, ABS_X,				pen->msg.pen_event.x_coord);
+		input_report_abs(input, ABS_Y,				pen->msg.pen_event.y_coord);
+		input_report_abs(input, ABS_PRESSURE, 			pen->msg.pen_event.pressure);
+		input_sync(input);		
 	}
 
-	input_report_key(input, pen->msg.pen_event.btn_removed,	0x00); // btn up event for the released button
-	input_report_key(input, pen->msg.pen_event.btn_code,	0x01); // btn down event for the pressed button
-	input_report_abs(input, ABS_X,				pen->msg.pen_event.x_coord);
-	input_report_abs(input, ABS_Y,				pen->msg.pen_event.y_coord);
-	input_report_abs(input, ABS_PRESSURE, 			pen->msg.pen_event.pressure);
-	input_sync(input);
+	//input_report_key(input, pen->msg.pen_event.btn_removed,	0x00); // btn up event for the released button
+	//input_report_key(input, pen->msg.pen_event.btn_code,	0x01); // btn down event for the pressed button
+	//input_report_abs(input, ABS_X,				pen->msg.pen_event.x_coord);
+	//input_report_abs(input, ABS_Y,				pen->msg.pen_event.y_coord);
+	//input_report_abs(input, ABS_PRESSURE, 			pen->msg.pen_event.pressure);
+	//input_sync(input);
 
 	return DTRG_NO_ERROR;
 }
